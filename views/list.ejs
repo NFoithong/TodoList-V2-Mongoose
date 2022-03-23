@@ -10,6 +10,7 @@
     <!-- array.forEach(function(<singleArrayItem>){//Use each singleArrayItem)) -->
     <div class="box">
         <% newListItems.forEach(function(item){ %>
+
             <!-- create a form or route to deleteing item -->
             <form action="/delete" method="post">
                 <div class="item">
@@ -19,6 +20,7 @@
                     </p>
                 </div>
             </form>
+
             <% }) %>
                 <!-- this form or route below to create new item -->
                 <form class="item" action="/" method="post">
