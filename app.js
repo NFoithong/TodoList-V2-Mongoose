@@ -47,18 +47,33 @@ const defaultItems = [item1, item2, item3];
 
 // mongoose insertMany syntax
 // <ModelName>.insertMany(<documentArray>, function(err){ // Deal with error or log success});
-Item.insertMany(defaultItems, function(err) {
-    if (err => console.log(err));
-    console.log('Succesfully saved default item to database')
-})
+// Item.insertMany(defaultItems, function(err) {
+//     if (err => console.log(err));
+//     console.log('Succesfully saved default item to database')
+// })
 
 app.get("/", function(req, res) {
-
+    // delete
     // const day = date.getDate();
     // res.render("list", {listTitle: day, newListItems: items});
 
-    res.render("list", { listTitle: 'Today', newListItems: items });
+    // create mongoose find() : log every item on items collection
+    // ModelName.find({conditions}, function(err, results){ // use the found results docs.})
+    Item.find({}, function(err, foundItems) {
 
+        if (foundItems.length === 0) {
+            // mongoose insertMany syntax
+            // <ModelName>.insertMany(<documentArray>, function(err){ // Deal with error or log success});
+            Item.insertMany(defaultItems, function(err) {
+                if (err => console.log(err));
+                console.log('Succesfully saved default item to database')
+            });
+            res.redirect('/');
+        } else {
+            // console.log(foundItems);
+            res.render("list", { listTitle: 'Today', newListItems: foundItems });
+        }
+    })
 });
 
 app.post("/", function(req, res) {
