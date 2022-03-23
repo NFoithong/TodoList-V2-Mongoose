@@ -45,6 +45,15 @@ const item3 = new Item({
 // put all item in array
 const defaultItems = [item1, item2, item3];
 
+// new schema
+const listSchema = {
+    name: String,
+    items: [itemsSchema]
+};
+
+// mongoose model
+const List = mongoose.model('List', listSchema);
+
 // mongoose insertMany syntax
 // <ModelName>.insertMany(<documentArray>, function(err){ // Deal with error or log success});
 // Item.insertMany(defaultItems, function(err) {
@@ -72,6 +81,31 @@ app.get("/", function(req, res) {
         } else {
             // console.log(foundItems);
             res.render("list", { listTitle: 'Today', newListItems: foundItems });
+        }
+    })
+});
+
+app.get('/:customListName', function(req, res) {
+    // console.log(req.params.customListName)
+    const customListName = req.params.customListName
+
+    // findOne to check if list already exist
+    List.findOne({ name: customListName }, function(err, foundList) {
+        if (!err) {
+            if (!foundList) {
+                // console.log('Does not exist');
+                // create a new list
+                const list = new List({
+                    name: customListName,
+                    items: defaultItems
+                });
+                list.save();
+                res.redirect('/' + customListName);
+            } else {
+                // console.log('Exist!');
+                // show an existing list
+                res.render('list', { listTitle: foundList.name, newListItems: foundList.items })
+            }
         }
     })
 });
@@ -122,3 +156,6 @@ app.get("/about", function(req, res) {
 app.listen(3000, function() {
     console.log("Server started on port 3000");
 });
+
+// express route parameters
+// app.get('/category/:<paramName>', function(req, res){Access req.params.paramName})
