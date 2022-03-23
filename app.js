@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require('mongoose');
 const date = require(__dirname + "/date.js");
+const _ = require('lodash');
 
 const app = express();
 
@@ -87,7 +88,7 @@ app.get("/", function(req, res) {
 
 app.get('/:customListName', function(req, res) {
     // console.log(req.params.customListName)
-    const customListName = req.params.customListName
+    const customListName = _.capitalize(req.params.customListName);
 
     // findOne to check if list already exist
     List.findOne({ name: customListName }, function(err, foundList) {
@@ -142,20 +143,30 @@ app.post("/", function(req, res) {
 app.post('/delete', function(req, res) {
     // console.log(req.body);
     const checkedItemId = req.body.checkbox;
+    const listName = req.body.listName;
 
-    // delete particular id by using mongoose findByIdAndRemove()
-    // modelName.findByIdAndRemove(id, function(err){});
-    Item.findByIdAndRemove(checkedItemId, function(err) {
-        if (!err) {
-            console.log('Succesfully delete checked item');
-            res.redirect('/');
-        }
-    })
+    if (listName === 'Today') {
+        // delete particular id by using mongoose findByIdAndRemove()
+        // modelName.findByIdAndRemove(id, function(err){});
+        Item.findByIdAndRemove(checkedItemId, function(err) {
+            if (!err) {
+                console.log('Succesfully delete checked item');
+                res.redirect('/');
+            }
+        });
+    } else {
+        List.findOneAndUpdate({ name: listName }, { $pull: { items: { _id: checkedItemId } } },
+            function(err, foundList) {
+                if (!err) {
+                    res.redirect('/' + listName);
+                }
+            });
+    }
 });
 
-app.get("/work", function(req, res) {
-    res.render("list", { listTitle: "Work List", newListItems: workItems });
-});
+// app.get("/work", function(req, res) {
+//     res.render("list", { listTitle: "Work List", newListItems: workItems });
+// });
 
 app.get("/about", function(req, res) {
     res.render("about");
@@ -167,3 +178,6 @@ app.listen(3000, function() {
 
 // express route parameters
 // app.get('/category/:<paramName>', function(req, res){Access req.params.paramName})
+
+
+// modelName.findByIdAndUpdate({condition}, {update}, function(err, result){});
