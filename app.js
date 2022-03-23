@@ -96,6 +96,21 @@ app.post("/", function(req, res) {
     // }
 });
 
+// delete
+app.post('/delete', function(req, res) {
+    // console.log(req.body);
+    const checkedItemId = req.body.checkbox;
+
+    // delete particular id by using mongoose findByIdAndRemove()
+    // modelName.findByIdAndRemove(id, function(err){});
+    Item.findByIdAndRemove(checkedItemId, function(err) {
+        if (!err) {
+            console.log('Succesfully delete checked item');
+            res.redirect('/');
+        }
+    })
+});
+
 app.get("/work", function(req, res) {
     res.render("list", { listTitle: "Work List", newListItems: workItems });
 });
